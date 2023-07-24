@@ -1,0 +1,53 @@
+from github import Github
+import os
+
+def get_sourced_candidates(query, max_results=10):
+    # Replace 'GITHUB_ACCESS_TOKEN' with the name of your environment variable that holds the GitHub API access token
+    access_token = os.environ.get("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")
+    g = Github(access_token)
+
+    # Search for users based on the query
+    users = g.search_users("Windchill, aerospace", max_results=max_results)
+
+    candidates = []
+    for user in users:
+        candidate = {
+            "username": user.login,
+            "name": user.name,
+            "location": user.location,
+            "email": user.email,
+            "followers": user.followers,
+            "repositories": []
+        }
+
+        # Fetch repositories for each user
+        for repo in user.get_repos():
+            candidate["repositories"].append({
+                "name": repo.name,
+                "description": repo.description,
+                "stars": repo.stargazers_count,
+                "language": repo.language,
+                "url": repo.html_url
+            })
+
+        candidates.append(candidate)
+
+    return candidates
+
+if __name__ == "__main__":
+    # Replace 'YOUR_QUERY' with your search query
+    sourced_candidates = get_sourced_candidates(query="Windchill, aerospace", max_results=10)
+
+    # Print the list of sourced candidates and their repositories
+    for candidate in sourced_candidates:
+        print(f"Username: {candidate['username']}")
+        print(f"Name: {candidate['name']}")
+        print(f"Location: {candidate['location']}")
+        print(f"Email: {candidate['email']}")
+        print(f"Followers: {candidate['followers']}")
+        print("Repositories:")
+        for repo in candidate['repositories']:
+            print(f"- {repo['name']} (Stars: {repo['stars']}, Language: {repo['language']})")
+            print(f"  Description: {repo['description']}")
+            print(f"  URL: {repo['url']}")
+        print("------------------------")
